@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        table tr th, table tr td{
+            white-space: nowrap;
+            border: 1px solid #aaa;
+        }
+    </style>
+</head>
+<body>
+<script src="js/lib/jquery/jquery-3.3.1.min.js"></script>
+<script src="js/lonlat.js"></script>
+<script src="js/disaster.js"></script>
+<script>
+    var rows = disaster.data.rows;
+    var table = $("<table/>").appendTo($("body"));
+    //添加表头
+    var row1 = rows[0];
+    var tr1 = $("<tr/>").appendTo(table);
+    for(var item in row1){
+        $("<th/>").html(item).appendTo(tr1);
+    }
+    tr1.append($("<th/>").html("经度")).append($("<th/>").html("纬度"));
+    //添加表的内容
+    for(var i=0;i<rows.length;i++){
+        var _tr = $("<tr/>").appendTo(table);
+        var _row = rows[i];
+        for(var item in _row){
+            var value = _row[item] === ""?"&nbsp;":_row[item];
+            $("<td/>").html(value).appendTo(_tr);
+        }
+        var _lonlat = lonlat[_row["省"]];
+        if(_lonlat) {
+            _tr.append($("<td/>").html(_lonlat.Longitude))
+                .append($("<td/>").html(_lonlat.Latitude));
+        }else{
+            _tr.append($("<td/>").html("&nbsp;"))
+                .append($("<td/>").html("&nbsp;"));
+        }
+    }
+</script>
+</body>
+</html>
