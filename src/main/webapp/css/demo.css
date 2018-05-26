@@ -1,4 +1,5 @@
 @charset "UTF-8";
+@import url(iconfont/iconfont.css);
 html,
 body,
 #map {
@@ -29,6 +30,28 @@ body,
   border: 1px solid red; }
   .map:not(:first-child) {
     margin-left: 20px; }
+
+.map-tools {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 5px;
+  background: white;
+  z-index: 9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 0;
+  list-style: none; }
+  .map-tools li {
+    color: black;
+    float: left; }
+    .map-tools li:hover {
+      cursor: pointer;
+      color: #444; }
+    .map-tools li:not(:first-child) {
+      margin-left: 10px; }
+    .map-tools li span {
+      font-size: 28px; }
 
 .ol-popup {
   display: none;
