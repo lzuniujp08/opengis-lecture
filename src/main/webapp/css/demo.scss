@@ -116,3 +116,37 @@ body,
     }
   }
 }
+
+.ol-name{
+  background: white;
+  padding: 3px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  box-shadow: 1px 1px 4px #ccc;
+  margin-bottom: 10px;
+  &:after, &:before{
+    top: 66%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    left: 50%;
+  }
+  &:after{
+    border-top-color: white;
+    border-width: 6px;
+    margin-left: -6px;
+  }
+  &:before{
+    border-top-color: #cccccc;
+    border-width: 8px;
+    margin-left: -8px;
+  }
+}
+
+.map-chart{
+  position: absolute;
+  width: 40px;
+  height: 40px;
+}

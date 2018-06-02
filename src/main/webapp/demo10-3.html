@@ -16,6 +16,7 @@
 </div>
 <script src="js/lib/ol4.6.4/ol.js"></script>
 <script src="js/lib/jquery/jquery-3.3.1.min.js"></script>
+<script src="js/lib/echarts/echarts.min.js"></script>
 <script>
     var view = new ol.View({
         zoom: 4,
@@ -28,8 +29,7 @@
         }).extend([]),
         target: "map",
         layers: [
-            getTdtLayer("vec_w"),
-            getTdtLayer("cva_w")
+            getTdtLayer("img_w")
         ],
         view: view
     });
@@ -43,42 +43,34 @@
     });
     map.addLayer(vector);
 
-    var container = $("#popup"),
-        close = $("#popup-closer"),
-        title = $("#popup-title"),
-        content = $("#popup-content");
+    setTimeout(showCapitals, 1000);
 
-    var overlay = new ol.Overlay({
-        element: container[0],
-        positioning:"bottom-center",
-        autoPan:true,
-        autoPanMargin:100
-    });
-    map.addOverlay(overlay);
-
-    map.on("click", function(evt){
-        var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
-            evt.coordinate, 'EPSG:3857', 'EPSG:4326'));
-        var content = '<p>你点击的位置是:</p><code>' + hdms +'</code>';
-        showInfo(evt.coordinate, content);
-        var feature = new ol.Feature({
-            geometry: new ol.geom.Point(evt.coordinate)
+    function showCapitals(){
+        $.get("./data/capital.geojson", function (result) {
+            result = result.features;
+            for(var i=0,len=result.length;i<len;i++){
+                var _feat = result[i];
+                addCapital(_feat);
+            }
         });
-        vectorSource.clear();
-        vectorSource.addFeature(feature);
-    });
-
-    function showInfo(coordinate, info){
-        title.html("提示信息");
-        content.html("").append(info);
-        title.show();
-        container.show();
-        overlay.setPosition(coordinate);
     }
+    
+    function addCapital(data) {
+        var _coord = ol.proj.fromLonLat(data.geometry.coordinates);
+        var _feature = new ol.Feature({
+            geometry: new ol.geom.Point(_coord),
+            attr: data
+        });
+        vectorSource.addFeature(_feature);
 
-    close.on("click", function () {
-        container.hide();
-    });
+        var _dom = $("<div/>").addClass("ol-name").html(data.properties.name);
+        var _overlay = new ol.Overlay({
+            element: _dom[0],
+            positioning:"bottom-center",
+            position: _coord
+        });
+        map.addOverlay(_overlay);
+    }
 
     function styleFunction(feature) {
         return new ol.style.Style({

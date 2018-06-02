@@ -34,9 +34,6 @@
 { "type": "Feature", "id": 30, "properties": { "name": "哈尔滨", "id": 40.000000, "lon": 126.567056, "lat": 45.693857, "heat": null }, "geometry": { "type": "Point", "coordinates": [ 126.56705607814561, 45.693856553844213 ] } },
 { "type": "Feature", "id": 31, "properties": { "name": "北京", "id": 41.000000, "lon": 116.068297, "lat": 39.892297, "heat": null }, "geometry": { "type": "Point", "coordinates": [ 116.06829681327378, 39.892296888653789 ] } },
 { "type": "Feature", "id": 32, "properties": { "name": "香港", "id": 42.000000, "lon": 114.093184, "lat": 22.428066, "heat": null }, "geometry": { "type": "Point", "coordinates": [ 114.09318425169782, 22.428065990916085 ] } },
-{ "type": "Feature", "id": 33, "properties": { "name": "澳门", "id": 43.000000, "lon": 113.552554, "lat": 22.184710, "heat": null }, "geometry": { "type": "Point", "coordinates": [ 113.55255358053526, 22.184709710970235 ] } },
-{ "type": "Feature", "id": 34, "properties": { "name": null, "id": 44.000000, "lon": 99.584912, "lat": 40.657524, "heat": null }, "geometry": { "type": "Point", "coordinates": [ 99.58491164397843, 40.657523622631167 ] } },
-{ "type": "Feature", "id": 35, "properties": { "name": null, "id": 45.000000, "lon": 97.988779, "lat": 33.563385, "heat": null }, "geometry": { "type": "Point", "coordinates": [ 97.98877873041215, 33.563385489660234 ] } },
-{ "type": "Feature", "id": 36, "properties": { "name": null, "id": 46.000000, "lon": 88.568590, "lat": 35.839041, "heat": null }, "geometry": { "type": "Point", "coordinates": [ 88.568590370550467, 35.839040726871893 ] } }
+{ "type": "Feature", "id": 33, "properties": { "name": "澳门", "id": 43.000000, "lon": 113.552554, "lat": 22.184710, "heat": null }, "geometry": { "type": "Point", "coordinates": [ 113.55255358053526, 22.184709710970235 ] } }
 ]
 }
