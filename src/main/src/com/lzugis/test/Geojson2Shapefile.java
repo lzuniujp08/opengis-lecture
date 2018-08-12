@@ -10,8 +10,10 @@ import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.geojson.geom.GeometryJSON;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -34,7 +36,8 @@ public class Geojson2Shapefile {
         JSONObject jsonObject = JSON.parseObject(strGeojson);
         JSONArray jsonArray = jsonObject.getJSONArray("features");
         GeometryJSON gjson = new GeometryJSON();
-//
+        FeatureJSON fjson = new FeatureJSON();
+
         //创建shape文件对象
         File file = new File(outPath);
         Map<String, Serializable> params = new HashMap<String, Serializable>();
@@ -55,13 +58,11 @@ public class Geojson2Shapefile {
 
         for(int i=0;i<jsonArray.size();i++){
             JSONObject jsonFeature = jsonArray.getJSONObject(i);
-            JSONObject jsonProperty = jsonFeature.getJSONObject("properties");
             Reader reader = new StringReader(jsonFeature.toJSONString());
-            Point point = gjson.readPoint( reader );
-
+            SimpleFeature _feature = fjson.readFeature(reader);
             SimpleFeature feature = writer.next();
-            feature.setAttribute("the_geom", point);
-            feature.setAttribute("name", jsonProperty.getString("name"));
+            feature.setAttribute("the_geom", _feature.getDefaultGeometry());
+            feature.setAttribute("name", _feature.getAttribute("name"));
             writer.write();
         }
         writer.close();

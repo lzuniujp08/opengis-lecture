@@ -19,11 +19,13 @@ public class ReadShapefile {
         Charset charset = Charset.forName("GBK");
         shpDataStore.setCharset(charset);
         String typeName = shpDataStore.getTypeNames()[0];
+
         SimpleFeatureSource featureSource = shpDataStore.getFeatureSource(typeName);
         SimpleFeatureCollection result = featureSource.getFeatures();
         SimpleFeatureIterator itertor = result.features();
         while (itertor.hasNext()) {
             SimpleFeature feature = itertor.next();
+            System.out.println(feature.getDefaultGeometry());
             System.out.println(feature.getAttribute("the_geom").toString());
         }
         itertor.close();
