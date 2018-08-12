@@ -16,7 +16,6 @@ public class Shapefile2Geojson {
 
     public static void main(String[] args) throws IOException{
         double start = System.currentTimeMillis();
-
         String path = "D:\\data\\capital.shp",
             outPath = "D:\\data\\capital.geojson";
         File file = new File(path);
