@@ -14,11 +14,16 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.Name;
 
 import java.io.File;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ShapeIntersect {
@@ -51,6 +56,43 @@ public class ShapeIntersect {
             SimpleFeatureCollection featureCollection1 = featureSource1.getFeatures();
             SimpleFeatureCollection featureCollection2 = featureSource2.getFeatures();
 
+            Map<String, Class> mapFields = new HashMap();
+            List<Map> fields1 = new ArrayList(),
+                fields2 = new ArrayList();
+
+            SimpleFeatureType featureType1 = featureCollection1.getSchema();
+            List<AttributeDescriptor> attrList1 = featureType1.getAttributeDescriptors();
+            for(int i=0;i<attrList1.size();i++){
+                AttributeDescriptor attr = attrList1.get(i);
+                String name = attr.getName().toString();
+                Class type = attr.getType().getBinding();
+                if(name != "the_geom"){
+                    mapFields.put(name, type);
+                    Map map = new HashMap();
+                    map.put("fieldShp", name);
+                    map.put("fieldNew", name);
+                    fields1.add(map);
+                }
+            }
+            SimpleFeatureType featureType2 = featureCollection2.getSchema();
+            List<AttributeDescriptor> attrList2 = featureType2.getAttributeDescriptors();
+            for(int j=0;j<attrList2.size();j++){
+                AttributeDescriptor attr = attrList1.get(j);
+                String name = attr.getName().toString();
+                Class type = attr.getType().getBinding();
+                if(name != "the_geom"){
+                    String _name = name;
+                    if(mapFields.containsKey(name)){
+                        _name = _name+"_1";
+                    }
+                    mapFields.put(_name, type);
+                    Map map = new HashMap();
+                    map.put("fieldShp", name);
+                    map.put("fieldNew", _name);
+                    fields2.add(map);
+                }
+            }
+
             SimpleFeatureIterator itertor1 = featureCollection1.features();
 
             //创建输出文件
@@ -63,14 +105,16 @@ public class ShapeIntersect {
             tb.setCRS(DefaultGeographicCRS.WGS84);
             tb.setName("shapefile");
             tb.add("the_geom", MultiPolygon.class);
-            tb.add("name", String.class);
+            for(String key:mapFields.keySet()){
+                tb.add(key, mapFields.get(key));
+            }
             ds.createSchema(tb.buildFeatureType());
             //设置编码
             ds.setCharset(charset);
             //设置Writer
             FeatureWriter<SimpleFeatureType, SimpleFeature> writer = ds.getFeatureWriter(ds.getTypeNames()[0], Transaction.AUTO_COMMIT);
 
-            JSONObject jsonObject = new JSONObject();
+            Map jsonObject = new HashMap();
             //开始计算
             while (itertor1.hasNext()) {
                 SimpleFeature feature1 = itertor1.next();
@@ -90,7 +134,18 @@ public class ShapeIntersect {
                         Geometry geomOut = geom1.intersection(geom2);
                         SimpleFeature featureOut = writer.next();
                         featureOut.setAttribute("the_geom", geomOut);
-                        featureOut.setAttribute("name", name);
+                        for(int i=0;i<fields1.size();i++){
+                            Map map = fields1.get(i);
+                            String fieldShp = map.get("fieldShp").toString(),
+                                    fieldNew = map.get("fieldNew").toString();
+                            featureOut.setAttribute(fieldNew, feature1.getAttribute(fieldShp));
+                        }
+                        for(int i=0;i<fields2.size();i++){
+                            Map map = fields2.get(i);
+                            String fieldShp = map.get("fieldShp").toString(),
+                                    fieldNew = map.get("fieldNew").toString();
+                            featureOut.setAttribute(fieldNew, feature2.getAttribute(fieldShp));
+                        }
                         writer.write();
                     }
                     jsonObject.put(id1+"-"+id2, true);
