@@ -88,12 +88,18 @@ public class ShapeProjTrans {
 
             while (itertor.hasNext()) {
                 SimpleFeature feature = itertor.next();
-                Point geom = (Point) feature.getDefaultGeometry();
-                double x = geom.getX(),
-                        y = geom.getY();
-                double[] lonlat = projTransform.wgs84togcj02(x, y);
-                Coordinate coordinate = new Coordinate(lonlat[0], lonlat[1]);
-                Geometry geomOut = geometryFactory.createPoint(coordinate);
+                Geometry geom = (Geometry) feature.getDefaultGeometry();
+                Coordinate[] coordsInput = geom.getCoordinates();
+                Coordinate[] coordsOutput = new Coordinate[coordsInput.length];
+                for(int i=0;i<coordsInput.length;i++){
+                    Coordinate coordInput = coordsInput[i];
+                    double x = coordInput.x,
+                            y = coordInput.y;
+                    double[] lonlat = projTransform.wgs84togcj02(x, y);
+                    Coordinate coordOutput = new Coordinate(lonlat[0], lonlat[1]);
+                    coordsOutput[i] = coordOutput;
+                }
+                Geometry geomOut = geometryFactory.createLineString(coordsOutput);
                 SimpleFeature featureOut = writer.next();
                 featureOut.setAttribute("the_geom", geomOut);
                 for(String key:mapFields.keySet()){
@@ -115,7 +121,7 @@ public class ShapeProjTrans {
         double start = System.currentTimeMillis();
         ShapeProjTrans shapeProjTrans = new ShapeProjTrans();
         String path = "C:\\Users\\lzuni\\Desktop\\geoserver\\",
-            layer = "layer_towers";
+            layer = "layer_lines";
         String input = path + layer + ".shp",
                 output = path+"out\\"+layer+".shp";
         shapeProjTrans.transShape(input, output);
