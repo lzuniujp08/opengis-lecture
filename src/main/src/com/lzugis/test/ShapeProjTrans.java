@@ -3,6 +3,7 @@ package com.lzugis.test;
 import com.lzugis.utils.ProjTransform;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
@@ -12,6 +13,7 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -81,6 +83,9 @@ public class ShapeProjTrans {
                     dsOutput.getFeatureWriter(dsOutput.getTypeNames()[0], Transaction.AUTO_COMMIT);
 
             SimpleFeatureIterator itertor = featureCollection.features();
+
+            GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+
             while (itertor.hasNext()) {
                 SimpleFeature feature = itertor.next();
                 Point geom = (Point) feature.getDefaultGeometry();
@@ -88,7 +93,7 @@ public class ShapeProjTrans {
                         y = geom.getY();
                 double[] lonlat = projTransform.wgs84togcj02(x, y);
                 Coordinate coordinate = new Coordinate(lonlat[0], lonlat[1]);
-                Geometry geomOut = new Point(coordinate, geom.getPrecisionModel(), geom.getSRID());
+                Geometry geomOut = geometryFactory.createPoint(coordinate);
                 SimpleFeature featureOut = writer.next();
                 featureOut.setAttribute("the_geom", geomOut);
                 for(String key:mapFields.keySet()){
@@ -109,9 +114,10 @@ public class ShapeProjTrans {
     public static void main(String[] args){
         double start = System.currentTimeMillis();
         ShapeProjTrans shapeProjTrans = new ShapeProjTrans();
-        String path = "C:\\Users\\lzuni\\Desktop\\geoserver\\";
-        String input = path+"layer_towers.shp",
-                output = path+"out\\layer_towers.shp";
+        String path = "C:\\Users\\lzuni\\Desktop\\geoserver\\",
+            layer = "layer_towers";
+        String input = path + layer + ".shp",
+                output = path+"out\\"+layer+".shp";
         shapeProjTrans.transShape(input, output);
         double end = System.currentTimeMillis();
         System.out.println("transform success, coast "+(end-start)+"MS");
