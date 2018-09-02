@@ -48,12 +48,15 @@ public class ShapeProjTrans {
             Map<String, Class> mapFields = new HashMap();
             SimpleFeatureType featureType1 = featureCollection.getSchema();
             List<AttributeDescriptor> attrList1 = featureType1.getAttributeDescriptors();
+            Class geomType = null;
             for(int i=0;i<attrList1.size();i++){
                 AttributeDescriptor attr = attrList1.get(i);
                 String name = attr.getName().toString();
                 Class type = attr.getType().getBinding();
                 if(name != "the_geom"){
                     mapFields.put(name, type);
+                } else {
+                    geomType = type;
                 }
             }
 
@@ -64,9 +67,9 @@ public class ShapeProjTrans {
             ShapefileDataStore dsOutput = (ShapefileDataStore) new ShapefileDataStoreFactory().createNewDataStore(params);
             //定义图形信息和属性信息
             SimpleFeatureTypeBuilder tb = new SimpleFeatureTypeBuilder();
-            tb.setCRS(DefaultGeographicCRS.WGS84);
+            tb.setCRS(featureType1.getCoordinateReferenceSystem());
             tb.setName("shapefile");
-            tb.add("the_geom", Point.class);
+            tb.add("the_geom", geomType);
             for(String key:mapFields.keySet()){
                 tb.add(key, mapFields.get(key));
             }
