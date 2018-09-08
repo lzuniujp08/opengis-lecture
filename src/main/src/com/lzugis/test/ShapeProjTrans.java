@@ -99,7 +99,7 @@ public class ShapeProjTrans {
                     Coordinate coordOutput = new Coordinate(lonlat[0], lonlat[1]);
                     coordsOutput[i] = coordOutput;
                 }
-                Geometry geomOut = geometryFactory.createLineString(coordsOutput);
+                Geometry geomOut = geometryFactory.createPolygon(coordsOutput);
                 SimpleFeature featureOut = writer.next();
                 featureOut.setAttribute("the_geom", geomOut);
                 for(String key:mapFields.keySet()){
@@ -121,7 +121,7 @@ public class ShapeProjTrans {
         double start = System.currentTimeMillis();
         ShapeProjTrans shapeProjTrans = new ShapeProjTrans();
         String path = "C:\\Users\\lzuni\\Desktop\\geoserver\\",
-            layer = "layer_lines";
+            layer = "bj_county";
         String input = path + layer + ".shp",
                 output = path+"out\\"+layer+".shp";
         shapeProjTrans.transShape(input, output);

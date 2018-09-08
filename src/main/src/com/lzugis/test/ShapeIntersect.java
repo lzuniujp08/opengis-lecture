@@ -42,8 +42,9 @@ public class ShapeIntersect {
             ShapefileDataStore shpDataStore1 = new ShapefileDataStore(inputFile1.toURL());
             ShapefileDataStore shpDataStore2 = new ShapefileDataStore(inputFile2.toURL());
 
-            //设置编码
+            //属性编码
             Charset charset = Charset.forName("GBK");
+
             shpDataStore1.setCharset(charset);
             shpDataStore2.setCharset(charset);
 
@@ -56,6 +57,13 @@ public class ShapeIntersect {
             SimpleFeatureCollection featureCollection1 = featureSource1.getFeatures();
             SimpleFeatureCollection featureCollection2 = featureSource2.getFeatures();
 
+            /**
+             * mapFields记录的是两个图层的属性名称，
+             *          在处理第二个图层的时候，如果已经有了这个名称，
+             *          会在字段后面加‘_1’予以区分
+             * fields1为图层1的字段
+             * fields2为图层2的字段
+             */
             Map<String, Class> mapFields = new HashMap();
             List<Map> fields1 = new ArrayList(),
                 fields2 = new ArrayList();
@@ -114,12 +122,12 @@ public class ShapeIntersect {
             //设置Writer
             FeatureWriter<SimpleFeatureType, SimpleFeature> writer = ds.getFeatureWriter(ds.getTypeNames()[0], Transaction.AUTO_COMMIT);
 
-            Map jsonObject = new HashMap();
+            //记录已经参与过计算的数据
+            Map hasDone = new HashMap();
             //开始计算
             while (itertor1.hasNext()) {
                 SimpleFeature feature1 = itertor1.next();
                 Geometry geom1 = (Geometry) feature1.getDefaultGeometry();
-                String name = feature1.getAttribute("NAME").toString();
                 String id1 = feature1.getID();
 
                 SimpleFeatureIterator itertor2 = featureCollection2.features();
@@ -127,8 +135,9 @@ public class ShapeIntersect {
                     SimpleFeature feature2 = itertor2.next();
                     Geometry geom2 = (Geometry) feature2.getDefaultGeometry();
                     String id2 = feature2.getID();
-                    boolean isDone1 = jsonObject.containsKey(id1+"-"+id2),
-                        isDone2 = jsonObject.containsKey(id2+"-"+id1),
+                    //判断是否已经参与了计算，需要考虑1∩2和2∩1两种情况
+                    boolean isDone1 = hasDone.containsKey(id1+"-"+id2),
+                        isDone2 = hasDone.containsKey(id2+"-"+id1),
                         isIntersect = geom1.intersects(geom2);
                     if(!isDone1 && !isDone2 && isIntersect){
                         Geometry geomOut = geom1.intersection(geom2);
@@ -148,8 +157,8 @@ public class ShapeIntersect {
                         }
                         writer.write();
                     }
-                    jsonObject.put(id1+"-"+id2, true);
-                    jsonObject.put(id2+"-"+id1, true);
+                    hasDone.put(id1+"-"+id2, true);
+                    hasDone.put(id2+"-"+id1, true);
                 }
                 itertor2.close();
             }
