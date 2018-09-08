@@ -13,4 +13,8 @@ public class TestService {
     public List getCapitals(){
         return testDao.getCapitals();
     }
+
+    public List getChinaUniversity(String name, String level, String province, String isprivate){
+        return testDao.getChinaUniversity(name, level, province, isprivate);
+    }
 }

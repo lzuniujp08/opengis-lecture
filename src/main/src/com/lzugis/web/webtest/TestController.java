@@ -25,4 +25,16 @@ public class TestController {
             return new ArrayList();
         }
     }
+
+    @RequestMapping(value="test/university")
+    @ResponseBody
+    public List getChinaUniversity(String name, String level, String province, String isprivate){
+        try {
+            List dbData = testService.getChinaUniversity(name, level, province, isprivate);
+            return dbData;
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ArrayList();
+        }
+    }
 }
