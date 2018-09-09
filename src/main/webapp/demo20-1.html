@@ -14,7 +14,7 @@
                 <th width=40">名称</th>
                 <td>
                     <input id="name" type="text" placeholder="请输入大学名称..." style="width: 185px;">
-                    <input type="button" value="查询" style="float: right;">
+                    <input id="query" type="button" value="查询" style="float: right;">
                 </td>
             </tr>
             <tr>
@@ -46,12 +46,21 @@
 <script src="js/lib/jquery/jquery-3.3.1.min.js"></script>
 <script>
   var map, provinces = [];
-  var base = getTilelayer("midnight");
+  var base = getTilelayer("img_w");
 
   var source = new ol.source.Vector({
     features: []
   });
-  var vector = new ol.layer.Vector({
+
+  var vector = new ol.layer.Heatmap({
+    source: source,
+    blur: 20,
+    radius: 8,
+    opacity: .75,
+    shadow:500
+  });
+
+  var vector1 = new ol.layer.Vector({
     source: source,
     style: function (feat) {
       var name = map.getView().getZoom()>10?feat.get("attr").name:"";
@@ -59,7 +68,7 @@
         image: new ol.style.Circle({
           radius: 4,
           fill: new ol.style.Fill({
-            color: '#ff0000'
+            color: '#5367ec'
           })
         }),
         text: new ol.style.Text({
@@ -83,7 +92,7 @@
       attribution: false
     }),
     target: 'map',
-    layers: [base, vector],
+    layers: [base, vector, vector1],
     view: new ol.View({
       center: ol.proj.fromLonLat([98.633, 31.607]),
       zoom:4,
@@ -134,15 +143,26 @@
         for(var i=0;i<provinces.length;i++){
           $("td.province").append($("<span/>").html(provinces[i]));
         }
+
+        $($(".province,.isprivate,.level").children()).click(function () {
+          $($(this).parent()).find('span').removeClass("active");
+          $(this).addClass("active");
+          showUniversity();
+        });
+
+        $("#query").on("click", showUniversity)
       }
     })
   }
 
   function getTilelayer(lyr){
-    var url = "https://s{0-8}.geohey.com/s/mapping/"+lyr+"/all?z={z}&x={x}&y={y}&retina=&ak=MGUxMmI2ZTk4YTVhNDEzYmJhZDJkNDM3ZWI5ZDAwOGE";
+    var urls = [];
+    for(var i=0;i<8;i++){
+      urls.push("http://t"+i+".tianditu.com/DataServer?T="+lyr+"&X={x}&Y={y}&L={z}");
+    }
     var layer = new ol.layer.Tile({
       source: new ol.source.XYZ({
-        url:url
+        urls:urls
       })
     });
     return layer;
